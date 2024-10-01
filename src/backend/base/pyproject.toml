@@ -83,6 +83,13 @@ crewai = "^0.36.0"
 spider-client = "^0.0.27"
 diskcache = "^5.6.3"
 clickhouse-connect = "0.7.19"
+celery = "^5.4.0"
+redis = "^5.1.0"
+flower = "^2.0.1"
+llama-cpp-python = "^0.3.1"
+sentence-transformers = "^3.1.1"
+ctransformers = "^0.2.27"
+fastapi-sso = "^0.15.0"
 
 
 [tool.poetry.extras]

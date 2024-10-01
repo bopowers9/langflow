@@ -6,7 +6,7 @@ from gunicorn import glogging  # type: ignore
 from gunicorn.app.base import BaseApplication  # type: ignore
 from uvicorn.workers import UvicornWorker
 
-from langflow.logging.logger import InterceptHandler  # type: ignore
+from langflow.lf_logging.logger import InterceptHandler  # type: ignore
 
 
 class LangflowUvicornWorker(UvicornWorker):

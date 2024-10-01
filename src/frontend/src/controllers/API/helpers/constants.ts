@@ -11,6 +11,7 @@ export const URLs = {
   USERS: "users",
   LOGOUT: `logout`,
   LOGIN: `login`,
+  GOOGLE_LOGIN: `oauth/google/login`,
   AUTOLOGIN: "auto_login",
   REFRESH: "refresh",
   BUILD: `build`,

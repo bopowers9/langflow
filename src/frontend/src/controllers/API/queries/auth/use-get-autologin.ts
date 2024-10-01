@@ -28,30 +28,32 @@ export const useGetAutoLogin: useQueryFunctionType<undefined, undefined> = (
   const { mutateAsync: mutationLogout } = useLogout();
 
   async function getAutoLoginFn(): Promise<null> {
-    try {
-      const response = await api.get<Users>(`${getURL("AUTOLOGIN")}`);
-      const user = response.data;
-      if (user && user["access_token"]) {
-        user["refresh_token"] = "auto";
-        login(user["access_token"], "auto");
-        setUserData(user);
-        setAutoLogin(true);
-      }
-    } catch (e) {
-      const error = e as AxiosError;
-      if (error.name !== "CanceledError") {
-        setAutoLogin(false);
-        if (!isLoginPage) {
-          if (!isAuthenticated) {
-            await mutationLogout();
-            navigate("/login");
-          } else {
-            getUser();
-          }
-        }
-      }
-    }
+    setAutoLogin(false);
     return null;
+    // try {
+    //   const response = await api.get<Users>(`${getURL("AUTOLOGIN")}`);
+    //   const user = response.data;
+    //   if (user && user["access_token"]) {
+    //     user["refresh_token"] = "auto";
+    //     login(user["access_token"], "auto");
+    //     setUserData(user);
+    //     setAutoLogin(true);
+    //   }
+    // } catch (e) {
+    //   const error = e as AxiosError;
+    //   if (error.name !== "CanceledError") {
+    //     setAutoLogin(false);
+    //     if (!isLoginPage) {
+    //       if (!isAuthenticated) {
+    //         await mutationLogout();
+    //         navigate("/login");
+    //       } else {
+    //         getUser();
+    //       }
+    //     }
+    //   }
+    // }
+    // return null;
   }
 
   const queryResult = query(["useGetAutoLogin"], getAutoLoginFn, {

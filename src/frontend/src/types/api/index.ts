@@ -141,7 +141,7 @@ export type ProfilePicturesTypeAPI = {
 export type LoginType = {
   grant_type?: string;
   username: string;
-  password: string;
+  password?: string;
   scrope?: string;
   client_id?: string;
   client_secret?: string;

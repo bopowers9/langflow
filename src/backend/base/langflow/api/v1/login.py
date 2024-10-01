@@ -1,5 +1,8 @@
+import os
+
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
+from fastapi_sso.sso.google import GoogleSSO
 from sqlmodel import Session
 
 from langflow.api.v1.schemas import Token
@@ -10,12 +13,16 @@ from langflow.services.auth.utils import (
     create_user_tokens,
 )
 from langflow.services.database.models.folder.utils import create_default_folder_if_it_doesnt_exist
-from langflow.services.database.models.user.crud import get_user_by_id
+from langflow.services.database.models.user.crud import get_user_by_id, find_or_create_user_by_oauth_profile
 from langflow.services.deps import get_session, get_settings_service, get_variable_service
 from langflow.services.settings.service import SettingsService
 from langflow.services.variable.service import VariableService
 
 router = APIRouter(tags=["Login"])
+
+CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
+CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
+google_sso = GoogleSSO(CLIENT_ID, CLIENT_SECRET)
 
 
 @router.post("/login", response_model=Token)
@@ -75,6 +82,80 @@ async def login_to_get_access_token(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+
+@router.get("/oauth/google/login")
+async def oauth_google_login(request: Request):
+    redirect_uri = request.url_for("oauth_google_callback")
+    with google_sso:
+        return await google_sso.get_login_redirect(
+            redirect_uri=redirect_uri,
+        )
+    
+
+@router.get("/oauth/google/callback", response_model=Token)
+async def oauth_google_callback(
+    request: Request,
+    response: Response,
+    db: Session = Depends(get_session),
+    # _: Session = Depends(get_current_active_user)
+    settings_service=Depends(get_settings_service),
+    variable_service: VariableService = Depends(get_variable_service),
+):
+    auth_settings = settings_service.auth_settings
+    oauth_profile = None
+    try:
+        with google_sso:
+            oauth_profile = await google_sso.verify_and_process(request)
+    except Exception as exc:
+        if isinstance(exc, HTTPException):
+            raise exc
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(exc),
+        ) from exc
+
+    if oauth_profile:
+        user = find_or_create_user_by_oauth_profile(oauth_profile, db)
+        tokens = create_user_tokens(user_id=user.id, db=db, update_last_login=True)
+        response.set_cookie(
+            "refresh_token_lf",
+            tokens["refresh_token"],
+            httponly=auth_settings.REFRESH_HTTPONLY,
+            samesite=auth_settings.REFRESH_SAME_SITE,
+            secure=auth_settings.REFRESH_SECURE,
+            expires=auth_settings.REFRESH_TOKEN_EXPIRE_SECONDS,
+            domain=auth_settings.COOKIE_DOMAIN,
+        )
+        response.set_cookie(
+            "access_token_lf",
+            tokens["access_token"],
+            httponly=auth_settings.ACCESS_HTTPONLY,
+            samesite=auth_settings.ACCESS_SAME_SITE,
+            secure=auth_settings.ACCESS_SECURE,
+            expires=auth_settings.ACCESS_TOKEN_EXPIRE_SECONDS,
+            domain=auth_settings.COOKIE_DOMAIN,
+        )
+        response.set_cookie(
+            "apikey_tkn_lflw",
+            str(user.store_api_key),
+            httponly=auth_settings.ACCESS_HTTPONLY,
+            samesite=auth_settings.ACCESS_SAME_SITE,
+            secure=auth_settings.ACCESS_SECURE,
+            expires=None,  # Set to None to make it a session cookie
+            domain=auth_settings.COOKIE_DOMAIN,
+        )
+        variable_service.initialize_user_variables(user.id, db)
+        # Create default folder for user if it doesn't exist
+        create_default_folder_if_it_doesnt_exist(db, user.id)
+        return tokens
+
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication error",
             headers={"WWW-Authenticate": "Bearer"},
         )
 

@@ -4,9 +4,9 @@ from uuid import UUID
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.attributes import flag_modified
-from sqlmodel import Session, select
+from sqlmodel import Session, select, insert
 
-from langflow.services.database.models.user.model import User, UserUpdate
+from langflow.services.database.models.user.model import User, UserUpdate, UserFindOrCreate
 from langflow.services.deps import get_session
 
 
@@ -16,6 +16,26 @@ def get_user_by_username(db: Session, username: str) -> User | None:
 
 def get_user_by_id(db: Session, id: UUID) -> User | None:
     return db.exec(select(User).where(User.id == id)).first()
+
+
+def find_or_create_user_by_oauth_profile(profile: UserFindOrCreate, db: Session) -> User:
+    username = profile.email.split("@")[0]
+    db_user = get_user_by_username(db, username)
+
+    if not db_user:
+        # Create new user
+        db_user = User(
+            username=username,
+            profile_image=profile.picture,
+        )
+        db.add(db_user)
+        try:
+            db.commit()
+        except IntegrityError as e:
+            db.rollback()
+            raise HTTPException(status_code=400, detail=str(e)) from e
+    
+    return db_user
 
 
 def update_user(user_db: User | None, user: UserUpdate, db: Session = Depends(get_session)) -> User:

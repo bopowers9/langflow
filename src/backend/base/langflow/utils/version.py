@@ -1,6 +1,6 @@
 import httpx
 
-from langflow.logging.logger import logger
+from langflow.lf_logging.logger import logger
 
 
 def _compute_non_prerelease_version(prerelease_version: str) -> str:

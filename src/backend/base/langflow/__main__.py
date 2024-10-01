@@ -19,7 +19,7 @@ from rich.panel import Panel
 from rich.table import Table
 from sqlmodel import select
 
-from langflow.logging.logger import configure, logger
+from langflow.lf_logging.logger import configure, logger
 from langflow.main import setup_app
 from langflow.services.database.models.folder.utils import (
     create_default_folder_if_it_doesnt_exist,

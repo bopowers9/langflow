@@ -4,7 +4,7 @@ import useAuthStore from "@/stores/authStore";
 import { useStoreStore } from "@/stores/storeStore";
 
 export const AuthSettingsGuard = ({ children }) => {
-  const autoLogin = useAuthStore((state) => state.autoLogin);
+  const autoLogin = false; //useAuthStore((state) => state.autoLogin);
   const hasStore = useStoreStore((state) => state.hasStore);
 
   // Hides the General settings if there is nothing to show

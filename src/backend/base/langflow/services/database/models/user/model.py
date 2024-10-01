@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 class User(SQLModel, table=True):  # type: ignore
     id: UUID = Field(default_factory=uuid4, primary_key=True, unique=True)
     username: str = Field(index=True, unique=True)
-    password: str = Field()
+    password: str | None = Field(default=None, nullable=True)
     profile_image: str | None = Field(default=None, nullable=True)
     is_active: bool = Field(default=False)
     is_superuser: bool = Field(default=False)
@@ -40,6 +40,11 @@ class User(SQLModel, table=True):  # type: ignore
 class UserCreate(SQLModel):
     username: str = Field()
     password: str = Field()
+
+
+class UserFindOrCreate(SQLModel):
+    email: str = Field()
+    picture: str | None = Field()
 
 
 class UserRead(SQLModel):

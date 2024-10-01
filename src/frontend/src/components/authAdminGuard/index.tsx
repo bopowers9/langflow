@@ -7,7 +7,7 @@ import { AuthContext } from "../../contexts/authContext";
 export const ProtectedAdminRoute = ({ children }) => {
   const { userData } = useContext(AuthContext);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  const autoLogin = useAuthStore((state) => state.autoLogin);
+  const autoLogin = false; //useAuthStore((state) => state.autoLogin);
   const isAdmin = useAuthStore((state) => state.isAdmin);
 
   if (!isAuthenticated) {

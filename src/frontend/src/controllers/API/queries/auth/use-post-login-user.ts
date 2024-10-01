@@ -10,18 +10,7 @@ export const useLoginUser: useMutationFunctionType<undefined, LoginType> = (
   const { mutate } = UseRequestProcessor();
 
   async function loginUserFn({ password, username }: LoginType): Promise<any> {
-    const res = await api.post(
-      `${getURL("LOGIN")}`,
-      new URLSearchParams({
-        username: username,
-        password: password,
-      }).toString(),
-      {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-      },
-    );
+    const res = await api.get(`${getURL("GOOGLE_LOGIN")}`);
     return res.data;
   }
 

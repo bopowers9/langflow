@@ -36,7 +36,7 @@ from langflow.graph.schema import InterfaceComponentTypes, RunOutputs
 from langflow.graph.vertex.base import Vertex, VertexStates
 from langflow.graph.vertex.schema import NodeData, NodeTypeEnum
 from langflow.graph.vertex.types import ComponentVertex, InterfaceVertex, StateVertex
-from langflow.logging.logger import LogConfig, configure
+from langflow.lf_logging.logger import LogConfig, configure
 from langflow.schema import Data
 from langflow.schema.schema import INPUT_FIELD_NAME, InputType
 from langflow.services.cache.utils import CacheMiss

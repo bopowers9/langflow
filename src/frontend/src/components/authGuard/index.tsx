@@ -10,7 +10,7 @@ import { useEffect } from "react";
 export const ProtectedRoute = ({ children }) => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const { mutate: mutateRefresh } = useRefreshAccessToken();
-  const autoLogin = useAuthStore((state) => state.autoLogin);
+  const autoLogin = false; //useAuthStore((state) => state.autoLogin);
 
   useEffect(() => {
     const envRefreshTime = LANGFLOW_ACCESS_TOKEN_EXPIRE_SECONDS_ENV;

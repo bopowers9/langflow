@@ -53,10 +53,10 @@ export default function LoginPage(): JSX.Element {
   return (
     <Form.Root
       onSubmit={(event) => {
-        if (password === "") {
-          event.preventDefault();
-          return;
-        }
+        // if (password === "") {
+        //   event.preventDefault();
+        //   return;
+        // }
         signIn();
         const data = Object.fromEntries(new FormData(event.currentTarget));
         event.preventDefault();
@@ -69,66 +69,12 @@ export default function LoginPage(): JSX.Element {
           <span className="mb-6 text-2xl font-semibold text-primary">
             Sign in to Langflow
           </span>
-          <div className="mb-3 w-full">
-            <Form.Field name="username">
-              <Form.Label className="data-[invalid]:label-invalid">
-                Username <span className="font-medium text-destructive">*</span>
-              </Form.Label>
-
-              <Form.Control asChild>
-                <Input
-                  type="username"
-                  onChange={({ target: { value } }) => {
-                    handleInput({ target: { name: "username", value } });
-                  }}
-                  value={username}
-                  className="w-full"
-                  required
-                  placeholder="Username"
-                />
-              </Form.Control>
-
-              <Form.Message match="valueMissing" className="field-invalid">
-                Please enter your username
-              </Form.Message>
-            </Form.Field>
-          </div>
-          <div className="mb-3 w-full">
-            <Form.Field name="password">
-              <Form.Label className="data-[invalid]:label-invalid">
-                Password <span className="font-medium text-destructive">*</span>
-              </Form.Label>
-
-              <InputComponent
-                onChange={(value) => {
-                  handleInput({ target: { name: "password", value } });
-                }}
-                value={password}
-                isForm
-                password={true}
-                required
-                placeholder="Password"
-                className="w-full"
-              />
-
-              <Form.Message className="field-invalid" match="valueMissing">
-                Please enter your password
-              </Form.Message>
-            </Form.Field>
-          </div>
           <div className="w-full">
             <Form.Submit asChild>
               <Button className="mr-3 mt-6 w-full" type="submit">
                 Sign in
               </Button>
             </Form.Submit>
-          </div>
-          <div className="w-full">
-            <CustomLink to="/signup">
-              <Button className="w-full" variant="outline" type="button">
-                Don't have an account?&nbsp;<b>Sign Up</b>
-              </Button>
-            </CustomLink>
           </div>
         </div>
       </div>
